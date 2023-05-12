@@ -10,15 +10,16 @@ def build_inverted_index():
     inverted_index = {}
 
     for cur, subdir, files in os.walk(json_file):
+        print("HAHAHAHAH")
         for file in files:
             if file.endswith('.json'):
                 with open(os.path.join(cur,file),'r') as fizzy:
                     data = json.load(fizzy)
 
-                s = BeautifulSoup(json_data['html'], 'html.parser')
+                soup = BeautifulSoup(data['html'], 'html.parser')
                 text = soup.get_text()
 
-                tokens = re.findall(r"[a-zA-Z0-9]+", stringer.lower())
+                tokens = re.findall(r"[a-zA-Z0-9]+", text.lower())
                 undup_tokens = set(tokens)
                 for token in undup_tokens:
                     if token not in inverted_index.keys():
@@ -32,5 +33,12 @@ def write_report(inverted_dic):
         for term, posts in inverted_dic.items():
             f.write(f'Term: {term}\nDocuments:\n')
             for post in posts:
-                f.write(f' - {posting["doc-id"]}: tf={posting["tf-dif"]}\n')
+                f.write(f' - {post["doc-id"]}: tf={post["tf-dif"]}\n')
             f.write('\n')
+
+
+if __name__ == "__main__":
+    print("HERE")
+    inverted = build_inverted_index()
+    print("HERE2")
+    write_report(inverted)
