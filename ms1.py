@@ -3,8 +3,10 @@ import json
 from bs4 import BeautifulSoup
 import re 
 from collections import defaultdict
+from nltk.stem import PorterStemmer
 
 json_file = os.path.join(os.getcwd(), 'DEV')
+# json_file = os.path.join(os.getcwd(), 'ANALYST')
 
 file_counter = 0
 index_size = 0
@@ -17,28 +19,40 @@ def build_inverted_index():
     for cur, subdir, files in os.walk(json_file):
         for file in files:
             print(file)
+            file_counter += 1
             if file.endswith('.json'):
-                cur_file_path = os.path.join(cur, file)
-                with open(cur_file_path,'r') as f:
-                    data = json.load(f)
-                soup = BeautifulSoup(data['content'], 'html.parser')
-                text = soup.get_text()
+                try:
+                    cur_file_path = os.path.join(cur, file)
+                    with open(cur_file_path,'r') as f:
+                        data = json.load(f)
+                        soup = BeautifulSoup(data['content'], 'html.parser')
+                        text = soup.get_text()
 
-                tokens = re.findall(r"[a-zA-Z0-9]+", text.lower())
-                undup_tokens = set(tokens)
-                for token in undup_tokens:
-                    inverted_index[token].append({'doc_id': file, "tf-dif": tokens.count(token)})
-                file_counter += 1
 
-                index_size_bytes = os.path.getsize(cur_file_path)
-                index_size += (index_size_bytes/1024)
+                    tokens = re.findall(r"\b[a-zA-Z0-9]{3,}\b", text.lower())
+                    undup_tokens = set(tokens)
+                    for token in undup_tokens:
+                        inverted_index[token].append({'doc_id': file, "tf-dif": tokens.count(token)})
+                except:
+                    print("BAD FILE")
 
-    with open('inverted_index.json', 'w') as f:
-        json.dump(inverted_index, f)
+                # index_size_bytes = os.path.getsize(cur_file_path)
+                # index_size += (index_size_bytes/1024)
+                write_report(inverted_index)
+        write_json(inverted_index)
+
     return inverted_index
+def write_json(inverted_dic):
+    with open('inverted_index.json', 'w') as f:
+            json.dump(inverted_dic, f)
+
 
 def write_report(inverted_dic):
-    global file_counter, index_size
+    global file_counter
+
+    file_path = os.path.join(os.getcwd(), 'inverted_index.json')
+    index_size_bytes = os.path.getsize(file_path)
+    index_size = (index_size_bytes/1024)
     with open('report.txt', 'w') as f:
         f.write("Inverted Index\n\n")
         # for term, posts in inverted_dic.items():
@@ -52,6 +66,6 @@ def write_report(inverted_dic):
 
 
 
-if __name__ == "__main__":
+if __name__ == "main":
     inverted = build_inverted_index()
-    write_report(inverted)
+    # write_report(inverted)`
