@@ -85,7 +85,10 @@ def write_json(inverted_dic):
     with open('inverted_index.json', 'w') as f:
             json.dump(inverted_dic, f)
 
-
+#Makes file_counter a global variable available in the scope of the method 
+#Obtains a file path by joining the current working directory and 'inverted_index.json', Sets and index size
+#Opens/creates a file in the current working directory called "report.txt" in writing mode saved as f within the scope of the context manager
+#Writes to the file incorporates the file_counter global variable, the inverted dictionairy keys, as well as the index_size
 def write_report(inverted_dic):
     global file_counter
 
